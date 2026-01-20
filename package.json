@@ -1,6 +1,6 @@
 {
   "name": "quran-search-engine-mcp",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "MCP server wrapping quran-search-engine for AI tools. Provides Quran search, Arabic normalization, and highlighting as CLI tools.",
   "main": "index.js",
   "type": "module",
