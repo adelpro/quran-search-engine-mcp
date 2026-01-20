@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -14,24 +16,48 @@ import {
 } from 'quran-search-engine';
 import { z } from 'zod';
 
+/* -------------------------------------------------------------------------- */
+/*                                Crash guards                                */
+/* -------------------------------------------------------------------------- */
+
+process.on('uncaughtException', (error) => {
+  console.error('[uncaughtException]', error);
+});
+
+process.on('unhandledRejection', (error) => {
+  console.error('[unhandledRejection]', error);
+});
+
+/* -------------------------------------------------------------------------- */
+/*                                MCP server                                  */
+/* -------------------------------------------------------------------------- */
+
 const server = new McpServer({
   name: 'quran-search-engine-mcp',
-  version: '0.1.0',
+  version: '0.2.0',
 });
+
+/* -------------------------------------------------------------------------- */
+/*                                   Data                                     */
+/* -------------------------------------------------------------------------- */
 
 let quranData: QuranText[];
 let morphologyMap: Map<number, MorphologyAya>;
 let wordMap: WordMap;
 let dataLoaded = false;
 
-// Load datasets once at startup
 async function loadData(): Promise<void> {
   quranData = await loadQuranData();
   morphologyMap = await loadMorphology();
   wordMap = await loadWordMap();
   dataLoaded = true;
+
   console.error('Quran datasets loaded');
 }
+
+/* -------------------------------------------------------------------------- */
+/*                                   Tools                                    */
+/* -------------------------------------------------------------------------- */
 
 server.registerTool(
   'search',
@@ -85,6 +111,10 @@ server.registerTool(
   },
 );
 
+/* -------------------------------------------------------------------------- */
+/*                                 Bootstrap                                  */
+/* -------------------------------------------------------------------------- */
+
 await loadData().catch((error) => {
   console.error(error);
   process.exit(1);
@@ -92,3 +122,10 @@ await loadData().catch((error) => {
 
 await server.connect(new StdioServerTransport());
 console.error('Quran MCP stdio server ready');
+
+/**
+ * CRITICAL:
+ * Keeps the process alive for stdio-based MCP servers.
+ * Without this, `npx` will exit immediately.
+ */
+process.stdin.resume();
