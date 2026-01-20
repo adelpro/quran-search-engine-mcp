@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- MCP stdio server implementation using the official SDK and zod schemas.
+- Stdio-based test script that validates tool registration and search output.
+- MIT license and contribution guidelines.
+- GitHub issue and pull request templates.
+
+### Changed
+
+- Replaced the Express HTTP server with MCP stdio tooling.
+- Updated package metadata (author email, repository, keywords, license).
+
 ## [0.1.0] - 2026-01-20
 
 ### Added
