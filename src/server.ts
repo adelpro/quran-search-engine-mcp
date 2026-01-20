@@ -1,5 +1,5 @@
-import express, { type Request, type Response } from 'express';
-import cors from 'cors';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   getHighlightRanges,
   loadMorphology,
@@ -12,59 +12,83 @@ import {
   type SearchResponse,
   type WordMap,
 } from 'quran-search-engine';
+import { z } from 'zod';
 
-const app = express();
-const port = process.env.PORT || 4000;
-
-app.use(cors());
-app.use(express.json());
+const server = new McpServer({
+  name: 'quran-search-engine-mcp',
+  version: '0.1.0',
+});
 
 let quranData: QuranText[];
 let morphologyMap: Map<number, MorphologyAya>;
 let wordMap: WordMap;
+let dataLoaded = false;
 
 // Load datasets once at startup
 async function loadData(): Promise<void> {
   quranData = await loadQuranData();
   morphologyMap = await loadMorphology();
   wordMap = await loadWordMap();
-  console.log('Quran datasets loaded');
+  dataLoaded = true;
+  console.error('Quran datasets loaded');
 }
 
-loadData();
+server.registerTool(
+  'search',
+  {
+    title: 'Quran Search',
+    description: 'Search the Quran with Arabic normalization, lemma/root options, and highlights.',
+    inputSchema: z.object({
+      query: z.string().min(1),
+      lemma: z.boolean().optional().default(true),
+      root: z.boolean().optional().default(true),
+      page: z.number().int().min(1).optional().default(1),
+      limit: z.number().int().min(1).max(200).optional().default(10),
+    }),
+  },
+  async ({ query, lemma, root, page, limit }) => {
+    if (!dataLoaded) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({ error: 'Server is still loading data' }),
+          },
+        ],
+      };
+    }
 
-// Search endpoint
-app.post('/search', (req: Request, res: Response) => {
-  const { query, lemma = true, root = true, page = 1, limit = 10 } = req.body;
-  if (!query || typeof query !== 'string') {
-    return res.status(400).json({ error: 'Query is required' });
-  }
+    const normalizedQuery = normalizeArabic(query);
 
-  const normalizedQuery = normalizeArabic(query);
+    const response: SearchResponse = search(
+      normalizedQuery,
+      quranData,
+      morphologyMap,
+      wordMap,
+      { lemma, root },
+      { page, limit },
+    );
 
-  const response: SearchResponse = search(
-    normalizedQuery,
-    quranData,
-    morphologyMap,
-    wordMap,
-    { lemma, root },
-    { page, limit },
-  );
+    response.results = response.results.map((verse) => ({
+      ...verse,
+      highlights: getHighlightRanges(verse.uthmani, verse.matchedTokens, verse.tokenTypes),
+    }));
 
-  // Add highlights
-  response.results = response.results.map((verse) => ({
-    ...verse,
-    highlights: getHighlightRanges(verse.uthmani, verse.matchedTokens, verse.tokenTypes),
-  }));
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(response),
+        },
+      ],
+    };
+  },
+);
 
-  return res.json(response);
+await loadData().catch((error) => {
+  console.error(error);
+  process.exit(1);
 });
 
-// Health check
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({ status: 'ok' });
-});
-
-app.listen(port, () => {
-  console.log(`Quran MCP server running on http://localhost:${port}`);
-});
+await server.connect(new StdioServerTransport());
+console.error('Quran MCP stdio server ready');

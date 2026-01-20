@@ -21,22 +21,32 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "quran",
+    "search",
+    "arabic",
+    "claude",
+    "ai"
+  ],
+  "author": "adelpro <contact@adelpro.us.kg>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adelpro/quran-search-emgine-mcp.git"
+  },
   "packageManager": "pnpm@10.15.0",
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.2.1",
-    "quran-search-engine": "^0.1.5"
+    "@modelcontextprotocol/sdk": "^1.19.1",
+    "quran-search-engine": "^0.1.5",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.3.1",
     "@commitlint/config-conventional": "^20.3.1",
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
     "@types/node": "^25.0.9",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.53.1",
