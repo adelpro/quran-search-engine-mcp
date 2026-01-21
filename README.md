@@ -1,6 +1,7 @@
 # Quran Search Engine MCP
 
 [![npm version](https://img.shields.io/npm/v/quran-search-engine-mcp.svg)](https://www.npmjs.com/package/quran-search-engine-mcp)
+[![Registry](https://img.shields.io/badge/MCP-Registry-blue?style=flat&logo=github)](https://github.com/modelcontextprotocol/servers)
 [![license](https://img.shields.io/npm/l/quran-search-engine-mcp.svg)](LICENSE)
 
 An MCP stdio server that exposes Quran search tools with Arabic normalization, lemma/root options, pagination, and highlights.
