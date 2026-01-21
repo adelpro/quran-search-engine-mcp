@@ -30,6 +30,7 @@
     "claude",
     "ai"
   ],
+  "mcpName": "io.github.adelpro/quran-search-engine-mcp",
   "author": "adelpro <contact@adelpro.us.kg>",
   "license": "MIT",
   "repository": {
