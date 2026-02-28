@@ -16,6 +16,15 @@ import {
 import { z } from 'zod';
 
 /* -------------------------------------------------------------------------- */
+/*                                Constants                                   */
+/* -------------------------------------------------------------------------- */
+const DEFAULT_PAGE_LIMIT = 1;
+const MIN_PAGE_LIMIT = 1;
+const MAX_SEARCH_LIMIT = 200;
+const MIN_SEARCH_LIMIT = 1;
+const DEFAULT_SEARCH_LIMIT = 10;
+
+/* -------------------------------------------------------------------------- */
 /*                                Crash guards                                */
 /* -------------------------------------------------------------------------- */
 process.on('uncaughtException', (error) => {
@@ -61,8 +70,14 @@ server.registerTool(
       query: z.string().min(1),
       lemma: z.boolean().optional().default(true),
       root: z.boolean().optional().default(true),
-      page: z.number().int().min(1).optional().default(1),
-      limit: z.number().int().min(1).max(200).optional().default(10),
+      page: z.number().int().min(MIN_PAGE_LIMIT).optional().default(DEFAULT_PAGE_LIMIT),
+      limit: z
+        .number()
+        .int()
+        .min(MIN_SEARCH_LIMIT)
+        .max(MAX_SEARCH_LIMIT)
+        .optional()
+        .default(DEFAULT_SEARCH_LIMIT),
     }),
   },
   async ({ query, lemma, root, page, limit }) => {
