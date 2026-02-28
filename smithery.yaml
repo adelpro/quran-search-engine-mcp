@@ -5,6 +5,7 @@ startCommand:
       command: "npx",
       args: ["-y", "quran-search-engine-mcp"]
     })
-  configSchema:
-    type: object
-    properties: {}
+
+configSchema:
+  type: object
+  properties: {}
