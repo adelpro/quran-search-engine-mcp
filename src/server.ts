@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -19,11 +18,9 @@ import { z } from 'zod';
 /* -------------------------------------------------------------------------- */
 /*                                Crash guards                                */
 /* -------------------------------------------------------------------------- */
-
 process.on('uncaughtException', (error) => {
   console.error('[uncaughtException]', error);
 });
-
 process.on('unhandledRejection', (error) => {
   console.error('[unhandledRejection]', error);
 });
@@ -31,7 +28,6 @@ process.on('unhandledRejection', (error) => {
 /* -------------------------------------------------------------------------- */
 /*                                MCP server                                  */
 /* -------------------------------------------------------------------------- */
-
 const server = new McpServer({
   name: 'quran-search-engine-mcp',
   version: '0.2.0',
@@ -40,7 +36,6 @@ const server = new McpServer({
 /* -------------------------------------------------------------------------- */
 /*                                   Data                                     */
 /* -------------------------------------------------------------------------- */
-
 let quranData: QuranText[];
 let morphologyMap: Map<number, MorphologyAya>;
 let wordMap: WordMap;
@@ -51,14 +46,12 @@ async function loadData(): Promise<void> {
   morphologyMap = await loadMorphology();
   wordMap = await loadWordMap();
   dataLoaded = true;
-
   console.error('Quran datasets loaded');
 }
 
 /* -------------------------------------------------------------------------- */
 /*                                   Tools                                    */
 /* -------------------------------------------------------------------------- */
-
 server.registerTool(
   'search',
   {
@@ -78,14 +71,15 @@ server.registerTool(
         content: [
           {
             type: 'text',
-            text: JSON.stringify({ error: 'Server is still loading data' }),
+            text: JSON.stringify({
+              error: 'Server is still loading data, please try again in a moment',
+            }),
           },
         ],
       };
     }
 
     const normalizedQuery = normalizeArabic(query);
-
     const response: SearchResponse = search(
       normalizedQuery,
       quranData,
@@ -115,13 +109,15 @@ server.registerTool(
 /*                                 Bootstrap                                  */
 /* -------------------------------------------------------------------------- */
 
-await loadData().catch((error) => {
+// Connect FIRST so Smithery can handshake and discover tools immediately
+await server.connect(new StdioServerTransport());
+console.error('Quran MCP stdio server ready');
+
+// Load data in the background AFTER connecting
+loadData().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-
-await server.connect(new StdioServerTransport());
-console.error('Quran MCP stdio server ready');
 
 /**
  * CRITICAL:
