@@ -11,7 +11,7 @@
     "lint": "eslint src/**/*.{ts,tsx}",
     "lint:fix": "eslint src/**/*.{ts,tsx} --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
-    "test": "pnpm build && node scripts/test.js",
+    "test": "yarn build && node scripts/test.js",
     "prepare": "husky"
   },
   "bin": {
@@ -37,7 +37,7 @@
     "type": "git",
     "url": "https://github.com/adelpro/quran-search-engine-mcp.git"
   },
-  "packageManager": "pnpm@10.15.0",
+  "packageManager": "yarn@1.22.22",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.19.1",
     "quran-search-engine": "^0.1.5",

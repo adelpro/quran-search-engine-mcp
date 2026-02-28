@@ -1,5 +1,10 @@
 startCommand:
   type: stdio
-  command: npx
-  args:
-    - 'quran-search-engine-mcp'
+  commandFunction: >-
+    (_config) => ({
+      command: "npx",
+      args: ["-y", "quran-search-engine-mcp"]
+    })
+  configSchema:
+    type: object
+    properties: {}
