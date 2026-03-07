@@ -12,8 +12,14 @@
     "lint:fix": "eslint src/**/*.{ts,tsx} --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
     "test": "yarn build && node scripts/test.js",
+    "size": "size-limit",
     "prepare": "husky"
   },
+  "size-limit": [
+    {
+      "path": "dist/server.js"
+    }
+  ],
   "bin": {
     "quran-search-engine-mcp": "dist/server.js"
   },
@@ -48,6 +54,7 @@
     "@commitlint/config-conventional": "^20.3.1",
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
+    "@size-limit/file": "^12.0.1",
     "@types/node": "^25.0.9",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.53.1",
@@ -57,6 +64,7 @@
     "globals": "^17.0.0",
     "husky": "^9.1.7",
     "prettier": "^3.8.0",
+    "size-limit": "^12.0.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.1"
