@@ -14,6 +14,7 @@ import {
   type WordMap,
 } from 'quran-search-engine';
 import { z } from 'zod';
+import { DEFAULT_PAGE_LIMIT, MAX_QUERY_LENGTH, MAX_SEARCH_LIMIT } from './constants.js';
 
 /* -------------------------------------------------------------------------- */
 /*                                Crash guards                                */
@@ -56,13 +57,13 @@ server.registerTool(
   'search',
   {
     title: 'Quran Search',
-    description: 'Search the Quran with Arabic normalization, lemma/root options, and highlights.',
+    description: `Search the Quran with Arabic normalization, lemma/root options, and highlights. Query must be between 1 and ${MAX_QUERY_LENGTH} characters.`,
     inputSchema: z.object({
-      query: z.string().min(1),
+      query: z.string().min(1).max(MAX_QUERY_LENGTH),
       lemma: z.boolean().optional().default(true),
       root: z.boolean().optional().default(true),
       page: z.number().int().min(1).optional().default(1),
-      limit: z.number().int().min(1).max(200).optional().default(10),
+      limit: z.number().int().min(1).max(MAX_SEARCH_LIMIT).optional().default(DEFAULT_PAGE_LIMIT),
     }),
   },
   async ({ query, lemma, root, page, limit }) => {
