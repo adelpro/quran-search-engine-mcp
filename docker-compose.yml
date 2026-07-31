@@ -1,0 +1,29 @@
+services:
+  quran-mcp:
+    build: .
+    container_name: quran-search-engine-mcp
+    restart: unless-stopped
+    environment:
+      TRANSPORT: http
+      HOST: 0.0.0.0
+      PORT: '4000'
+      MCP_ALLOWED_HOSTS: ''
+      MCP_SESSION_TTL_MS: '300000'
+      MCP_MAX_SESSIONS: '500'
+      MCP_MAX_BODY_BYTES: '1048576'
+      MCP_RATE_LIMIT_PER_MINUTE: '60'
+    ports:
+      - '127.0.0.1:4000:4000'
+    mem_limit: 256m
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3

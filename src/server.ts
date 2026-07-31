@@ -1,127 +1,46 @@
 #!/usr/bin/env node
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import {
-  getHighlightRanges,
-  loadMorphology,
-  loadQuranData,
-  loadWordMap,
-  type MorphologyAya,
-  normalizeArabic,
-  type QuranText,
-  search,
-  type SearchResponse,
-  type WordMap,
-} from 'quran-search-engine';
-import { z } from 'zod';
+import { runHttp } from './http.js';
+import { runStdio } from './stdio.js';
 
-/* -------------------------------------------------------------------------- */
-/*                                Crash guards                                */
-/* -------------------------------------------------------------------------- */
-process.on('uncaughtException', (error) => {
-  console.error('[uncaughtException]', error);
-});
-process.on('unhandledRejection', (error) => {
-  console.error('[unhandledRejection]', error);
-});
-
-/* -------------------------------------------------------------------------- */
-/*                                MCP server                                  */
-/* -------------------------------------------------------------------------- */
-const server = new McpServer({
-  name: 'quran-search-engine-mcp',
-  version: '0.2.0',
-});
-
-/* -------------------------------------------------------------------------- */
-/*                                   Data                                     */
-/* -------------------------------------------------------------------------- */
-let quranData: QuranText[];
-let morphologyMap: Map<number, MorphologyAya>;
-let wordMap: WordMap;
-let dataLoaded = false;
-
-async function loadData(): Promise<void> {
-  quranData = await loadQuranData();
-  morphologyMap = await loadMorphology();
-  wordMap = await loadWordMap();
-  dataLoaded = true;
-  console.error('Quran datasets loaded');
+function parseAllowedHosts(): string[] | undefined {
+  const raw = process.env.MCP_ALLOWED_HOSTS;
+  if (!raw) return undefined;
+  return raw
+    .split(',')
+    .map((h) => h.trim())
+    .filter(Boolean);
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                   Tools                                    */
-/* -------------------------------------------------------------------------- */
-server.registerTool(
-  'search',
-  {
-    title: 'Quran Search',
-    description: 'Search the Quran with Arabic normalization, lemma/root options, and highlights.',
-    inputSchema: z.object({
-      query: z.string().min(1),
-      lemma: z.boolean().optional().default(true),
-      root: z.boolean().optional().default(true),
-      page: z.number().int().min(1).optional().default(1),
-      limit: z.number().int().min(1).max(200).optional().default(10),
-    }),
-  },
-  async ({ query, lemma, root, page, limit }) => {
-    if (!dataLoaded) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              error: 'Server is still loading data, please try again in a moment',
-            }),
-          },
-        ],
-      };
-    }
+function resolveTransport(): 'stdio' | 'http' {
+  const argv = process.argv.slice(2);
+  if (argv.includes('--http')) return 'http';
+  if (argv.includes('--stdio')) return 'stdio';
 
-    const normalizedQuery = normalizeArabic(query);
-    const response: SearchResponse = search(
-      normalizedQuery,
-      quranData,
-      morphologyMap,
-      wordMap,
-      { lemma, root },
-      { page, limit },
-    );
+  const flag = argv.find((a) => a.startsWith('--transport='));
+  if (flag) {
+    const value = flag.split('=')[1]?.toLowerCase();
+    if (value === 'http' || value === 'stdio') return value;
+  }
 
-    response.results = response.results.map((verse) => ({
-      ...verse,
-      highlights: getHighlightRanges(verse.uthmani, verse.matchedTokens, verse.tokenTypes),
-    }));
+  const envValue = (process.env.TRANSPORT ?? 'stdio').toLowerCase();
+  if (envValue === 'http' || envValue === 'stdio') return envValue;
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(response),
-        },
-      ],
-    };
-  },
-);
-
-/* -------------------------------------------------------------------------- */
-/*                                 Bootstrap                                  */
-/* -------------------------------------------------------------------------- */
-
-// Connect FIRST so Smithery can handshake and discover tools immediately
-await server.connect(new StdioServerTransport());
-console.error('Quran MCP stdio server ready');
-
-// Load data in the background AFTER connecting
-loadData().catch((error) => {
-  console.error(error);
+  console.error(`Unknown TRANSPORT value: "${envValue}" (expected "stdio" or "http")`);
   process.exit(1);
-});
+}
 
-/**
- * CRITICAL:
- * Keeps the process alive for stdio-based MCP servers.
- * Without this, `npx` will exit immediately.
- */
-process.stdin.resume();
+const transport = resolveTransport();
+
+if (transport === 'http') {
+  await runHttp({
+    port: Number(process.env.PORT) || 4000,
+    host: process.env.HOST ?? '0.0.0.0',
+    allowedHosts: parseAllowedHosts(),
+    sessionTtlMs: Number(process.env.MCP_SESSION_TTL_MS) || 300_000,
+    maxSessions: Number(process.env.MCP_MAX_SESSIONS) || 500,
+    maxBodyBytes: Number(process.env.MCP_MAX_BODY_BYTES) || 1_048_576,
+    rateLimitPerMinute: Number(process.env.MCP_RATE_LIMIT_PER_MINUTE) || 60,
+  });
+} else {
+  await runStdio();
+}
