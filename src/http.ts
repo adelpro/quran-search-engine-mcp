@@ -139,7 +139,7 @@ export async function runHttp(
         return;
       }
 
-      if (url.pathname !== '/mcp') {
+      if (url.pathname !== '/') {
         res.writeHead(404, { 'Content-Type': 'application/json', ...CORS_HEADERS });
         res.end(JSON.stringify({ error: 'Not found' }));
         return;
