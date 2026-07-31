@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.adelpro/quran-search-engine-mcp",
-  "description": "Quran Search Engine MCP for AI tools. Provides Quran search, Arabic normalization, and highlighting.",
+  "description": "Search, navigate, and explore the Quran through 8 MCP tools — verses, surahs, lemmas, roots, and morphology. Hosted at mcp.quran.us.kg.",
   "repository": {
     "url": "https://github.com/adelpro/quran-search-engine-mcp",
     "source": "github"

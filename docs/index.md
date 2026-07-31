@@ -10,6 +10,8 @@ clients fast, accurate, hallucination-free access to the Quran — including sea
 Arabic word / lemma / root, verse navigation by id or range, surah metadata, and per-verse
 morphology.
 
+> Search, navigate, and explore the Quran through 8 MCP tools — verses, surahs, lemmas, roots, and morphology. Hosted at mcp.quran.us.kg.
+
 The server is publicly hosted at **<https://mcp.quran.us.kg>** (Cloudflare-fronted, stable
 subdomain of `quran.us.kg`) and exposes its full tool surface over both
 **stdio** (for local AI clients) and **MCP Streamable HTTP** (for remote/hosted

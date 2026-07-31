@@ -2,6 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/quran-search-engine-mcp.svg)](https://www.npmjs.com/package/quran-search-engine-mcp)
 [![MCP Registry](https://img.shields.io/badge/MCP-Registry-blue?style=flat&logo=github)](https://github.com/modelcontextprotocol/servers)
+[![smithery badge](https://smithery.ai/badge/adelpro/quran-search-engine-mcp)](https://smithery.ai/servers/adelpro/quran-search-engine-mcp)
 [![license](https://img.shields.io/npm/l/quran-search-engine-mcp.svg)](LICENSE)
 [![Powered by quran-search-engine](https://img.shields.io/badge/Powered%20by-quran--search--engine-green)](https://github.com/adelpro/quran-search-engine)
 [![quran-search-engine](https://img.shields.io/npm/v/quran-search-engine.svg?label=engine&color=blue)](https://www.npmjs.com/package/quran-search-engine)
@@ -10,6 +11,7 @@ An MCP (Model Context Protocol) server that gives AI clients fast, accurate,
 hallucination-free access to the Quran — search, navigation, and morphology —
 over **stdio** and **Streamable HTTP**.
 
+> Search, navigate, and explore the Quran through 8 MCP tools — verses, surahs, lemmas, roots, and morphology. Hosted at mcp.quran.us.kg.
 > Instead of relying on an AI to "hallucinate" or predict Quranic verses, this
 > tool routes every request to a dedicated search engine. The AI handles the
 > natural language; the server returns the exact, literal Quranic text.

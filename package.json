@@ -1,7 +1,7 @@
 {
   "name": "quran-search-engine-mcp",
   "version": "0.5.0",
-  "description": "MCP server wrapping quran-search-engine for AI tools. Provides Quran search, navigation, and morphology over stdio and Streamable HTTP transports.",
+  "description": "Search, navigate, and explore the Quran through 8 MCP tools — verses, surahs, lemmas, roots, and morphology. Hosted at mcp.quran.us.kg.",
   "main": "index.js",
   "type": "module",
   "scripts": {
