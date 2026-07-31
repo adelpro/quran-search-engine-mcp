@@ -6,7 +6,7 @@ services:
     env_file:
       - .env
     ports:
-      - '127.0.0.1:4000:4000'
+      - '127.0.0.1:${PORT:-9000}:${PORT:-9000}'
     mem_limit: 256m
     healthcheck:
       test:
@@ -14,7 +14,7 @@ services:
           'CMD',
           'node',
           '-e',
-          "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+          "fetch('http://127.0.0.1:${PORT:-9000}/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
         ]
       interval: 30s
       timeout: 5s
