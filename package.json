@@ -46,7 +46,7 @@
   "packageManager": "yarn@1.22.22",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.19.1",
-    "quran-search-engine": "^0.1.5",
+    "quran-search-engine": "^0.3.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {

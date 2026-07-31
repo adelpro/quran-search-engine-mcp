@@ -1756,10 +1756,10 @@ qs@^6.14.0, qs@^6.14.1:
   dependencies:
     side-channel "^1.1.0"
 
-quran-search-engine@^0.1.5:
-  version "0.1.5"
-  resolved "https://registry.npmjs.org/quran-search-engine/-/quran-search-engine-0.1.5.tgz"
-  integrity sha512-dRtDbDQqZs7gZWkKD/G1NFVzrq9JMO3mOwhz0Bfhdq7tFuoIXZiITXozqk1zPfE8vAP55UbjqAKlKnoxVt/sjg==
+quran-search-engine@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/quran-search-engine/-/quran-search-engine-0.3.2.tgz#71ae8393dd0abf0c9307132d2af81362ff81d2dd"
+  integrity sha512-8EY7kWl/wzUNS65n+0U7fkiVh7uSchC+n70JCt9AB9dvSBVYu/q8trw7YcOAaUDrjfWPVZfeQggDURZEIejlEQ==
   dependencies:
     fuse.js "^7.0.0"
 

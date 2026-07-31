@@ -1,8 +1,11 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import {
+  type AdvancedSearchOptions,
   getHighlightRanges,
   normalizeArabic,
+  type PaginationOptions,
   search,
+  type SearchContext,
   type SearchResponse,
 } from 'quran-search-engine';
 import { z } from 'zod';
@@ -39,16 +42,19 @@ export function registerTools(server: McpServer): void {
       }
 
       try {
-        const { quranData, morphologyMap, wordMap } = getDataset();
+        const { quranData, morphologyMap, wordMap, invertedIndex } = getDataset();
         const normalizedQuery = normalizeArabic(query);
-        const response: SearchResponse = search(
-          normalizedQuery,
+
+        const context: SearchContext = {
           quranData,
           morphologyMap,
           wordMap,
-          { lemma, root },
-          { page, limit },
-        );
+          invertedIndex,
+        };
+        const options: AdvancedSearchOptions = { lemma, root };
+        const pagination: PaginationOptions = { page, limit };
+
+        const response: SearchResponse = search(normalizedQuery, context, options, pagination);
 
         response.results = response.results.map((verse) => ({
           ...verse,

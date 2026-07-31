@@ -1,4 +1,6 @@
 import {
+  buildInvertedIndex,
+  type InvertedIndex,
   loadMorphology,
   loadQuranData,
   loadWordMap,
@@ -8,9 +10,10 @@ import {
 } from 'quran-search-engine';
 
 export interface QuranDataset {
-  quranData: QuranText[];
+  quranData: Map<number, QuranText>;
   morphologyMap: Map<number, MorphologyAya>;
   wordMap: WordMap;
+  invertedIndex: InvertedIndex;
 }
 
 let dataset: QuranDataset | undefined;
@@ -19,17 +22,23 @@ let loadPromise: Promise<QuranDataset> | undefined;
 /**
  * Loads the Quran dataset (idempotent). Concurrent callers share one
  * in-flight promise, so calling this from multiple HTTP sessions at once
- * only triggers a single load.
+ * only triggers a single load. The inverted index is built eagerly as
+ * part of the same load — matching the "load everything up front" pattern
+ * used by both stdio and http transports.
  */
 export function ensureDataLoaded(): Promise<QuranDataset> {
   if (dataset) return Promise.resolve(dataset);
 
-  loadPromise ??= Promise.all([loadQuranData(), loadMorphology(), loadWordMap()]).then(
-    ([quranData, morphologyMap, wordMap]) => {
-      dataset = { quranData, morphologyMap, wordMap };
-      return dataset;
-    },
-  );
+  loadPromise ??= (async (): Promise<QuranDataset> => {
+    const [quranData, morphologyMap, wordMap] = await Promise.all([
+      loadQuranData(),
+      loadMorphology(),
+      loadWordMap(),
+    ]);
+    const invertedIndex = buildInvertedIndex(morphologyMap, quranData);
+    dataset = { quranData, morphologyMap, wordMap, invertedIndex };
+    return dataset;
+  })();
 
   return loadPromise;
 }
