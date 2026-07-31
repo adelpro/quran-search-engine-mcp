@@ -1,7 +1,7 @@
 {
   "name": "quran-search-engine-mcp",
-  "version": "0.4.0",
-  "description": "MCP server wrapping quran-search-engine for AI tools. Provides Quran search, Arabic normalization, and highlighting as CLI tools.",
+  "version": "0.5.0",
+  "description": "MCP server wrapping quran-search-engine for AI tools. Provides Quran search, navigation, and morphology over stdio and Streamable HTTP transports.",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -18,6 +18,7 @@
     "test": "yarn build && yarn test:stdio && yarn test:http",
     "test:stdio": "node scripts/test.js",
     "test:http": "node scripts/test-http.js",
+    "check:submission": "node scripts/check-submission.js",
     "prepare": "husky"
   },
   "bin": {

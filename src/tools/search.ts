@@ -9,9 +9,10 @@ import {
   type SearchResponse,
 } from 'quran-search-engine';
 import { z } from 'zod';
-import { getDataset, isDataLoaded } from './data.js';
+import { getDataset, isDataLoaded } from '../data.js';
+import { handleCaughtError, jsonError, jsonOk, READ_ONLY_ANNOTATIONS } from './_shared.js';
 
-export function registerTools(server: McpServer): void {
+export function registerSearch(server: McpServer): void {
   server.registerTool(
     'search',
     {
@@ -25,20 +26,11 @@ export function registerTools(server: McpServer): void {
         page: z.number().int().min(1).optional().default(1),
         limit: z.number().int().min(1).max(200).optional().default(10),
       }),
+      annotations: READ_ONLY_ANNOTATIONS,
     },
     async ({ query, lemma, root, page, limit }) => {
       if (!isDataLoaded()) {
-        return {
-          isError: true,
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                error: 'Server is still loading data, please try again in a moment',
-              }),
-            },
-          ],
-        };
+        return jsonError('Server is still loading data, please try again in a moment');
       }
 
       try {
@@ -61,26 +53,9 @@ export function registerTools(server: McpServer): void {
           highlights: getHighlightRanges(verse.uthmani, verse.matchedTokens, verse.tokenTypes),
         }));
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(response),
-            },
-          ],
-        };
+        return jsonOk(response);
       } catch (error) {
-        return {
-          isError: true,
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                error: error instanceof Error ? error.message : 'Unknown search error',
-              }),
-            },
-          ],
-        };
+        return handleCaughtError(error);
       }
     },
   );

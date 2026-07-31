@@ -14,6 +14,12 @@ export interface QuranDataset {
   morphologyMap: Map<number, MorphologyAya>;
   wordMap: WordMap;
   invertedIndex: InvertedIndex;
+  /**
+   * Precomputed lookup from suraId (1–114) to the gid of that sura's
+   * first verse. Built once at load time so `(suraId, ayaId) → gid`
+   * resolution is O(1) without iterating the quranData map.
+   */
+  gidOffsetTable: Map<number, number>;
 }
 
 let dataset: QuranDataset | undefined;
@@ -36,11 +42,27 @@ export function ensureDataLoaded(): Promise<QuranDataset> {
       loadWordMap(),
     ]);
     const invertedIndex = buildInvertedIndex(morphologyMap, quranData);
-    dataset = { quranData, morphologyMap, wordMap, invertedIndex };
+    const gidOffsetTable = buildGidOffsetTable(quranData);
+    dataset = { quranData, morphologyMap, wordMap, invertedIndex, gidOffsetTable };
     return dataset;
   })();
 
   return loadPromise;
+}
+
+/**
+ * Walks the loaded verse map once and records the gid of the first
+ * verse seen for each sura_id. Verses are 1-indexed per sura, so the
+ * gid for `(suraId, ayaId)` is `offset + (ayaId - 1)`.
+ */
+function buildGidOffsetTable(quranData: Map<number, QuranText>): Map<number, number> {
+  const table = new Map<number, number>();
+  for (const verse of quranData.values()) {
+    if (!table.has(verse.sura_id)) {
+      table.set(verse.sura_id, verse.gid);
+    }
+  }
+  return table;
 }
 
 export function isDataLoaded(): boolean {
